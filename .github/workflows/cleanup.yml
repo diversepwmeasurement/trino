@@ -1,22 +1,16 @@
-name: cleanup
-
-on:
-  # Triggered on every PR merge or close (but with the code and workflow as present in the base of the merge instead of the merge commmit)
-  pull_request_target:
-    types:
-      - closed
-
-# NOTE: Do not check out/execute code from the PR since a read-write token is present due to pull_request_target
 jobs:
   cancel:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+    runs-on: self-hosted
     steps:
-      - name: 'Cancel Runs For Closed PRs'
-        uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # 0.12.1
-        with:
-          # Cancel workflow when PR closed. https://github.com/styfle/cancel-workflow-action#advanced-ignore-sha
-          ignore_sha: true
-          # Note: workflow_id can be a Workflow ID (number) or Workflow File Name (string) or a comma-separated list of those.
-          workflow_id: "ci.yml,docs.yml"
-          access_token: ${{ github.token }}
+    - continue-on-error: true
+      name: Cancel Runs For Closed PRs
+      uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa
+      with:
+        access_token: ${{ github.token }}
+        ignore_sha: true
+        workflow_id: ci.yml,docs.yml
+    timeout-minutes: 5
+name: cleanup
+on:
+  repository_dispatch:
+    types: trigger-ga___cleanup.yml
